@@ -1,0 +1,138 @@
+---
+title: "Customer Segmentation"
+author: "Damaris Wanyoike"
+date: "5/7/2022"
+bootswatch: sandstone
+output: word_document
+---
+
+Business Understanding
+
+Customer segmentation is the process of division of customer base into several groups of individuals that share a similarity in different ways that are relevant to marketing such as gender, age, interests, and miscellaneous spending habits.Companies use this approach to gain a deeper understanding of the customer preferences as well as requirements for discovering segments that would reap maximum profits.Some of the objectives that we hope to answer are:Identifying the high spending customers, identify the age group of customers who usually go to the mall.
+
+Data Origin/Description
+
+The Mall customer data set is drawn from the data flair website. It contains information about people visiting the mall. The data set consists of 200 observations and 5 variables namely:gender,customer id, age, spending score and annual income. It collects insights from the data and group customers based on their behaviors.
+
+```{r,include=FALSE}
+#loads the packages
+library(tidyverse)
+library(bslib)
+```
+
+
+```{r,include=FALSE}
+# The code loads and save the data in R
+customer_data <- read.csv("Mall_Customers.csv")
+
+```
+
+```{r,echo=TRUE}
+# this provides the summary statistics and standard deviation of the customer's age.
+summary(customer_data$Age)
+
+sd(customer_data$Age)
+```
+
+```{r, echo=TRUE}
+#this provides the summary statistics and standard deviation of the customers' annual income.
+summary(customer_data$Annual.Income..k..)
+sd(customer_data$Annual.Income..k..)
+```
+Data Preparation
+
+In this particular example, there was no missing values. The only error was the gender column name had been misspelt.Some of the common issues that arise from using raw data include; having duplicate data, different data formats, poorly organized data(unstructured), incomplete data and having difficulty accessing the data.
+
+```{r, include=FALSE}
+#renames the genre column to gender.
+rename(customer_data,Gender =Genre)
+```
+
+Modelling
+
+To answer the objectives, we will employ graph visualizations such as bar charts, histograms and pie charts to check the distribution of the age, annual income and annual spending of the customer data set.We will also use the K-Means Algorithm to implement the customer segmentation. 
+
+Customer Gender Visualization
+
+```{r, echo=FALSE}
+#The plot depicts the frequency of the customer's age.
+hist(customer_data$Age,
+    col="blue",
+    main="Histogram to Show Count of Age Class",
+    xlab="Age Class",
+    ylab="Frequency",
+    labels=TRUE)
+```
+
+The histogram above shows that most customers are in the age range between 30 to 35. The minimum age is 18 whereas the maximum age is 70.
+
+Analysis of the annual income of Customers.
+```{r,echo=FALSE}
+#The plot depicts the frequency of the customer's annual income.
+hist(customer_data$Annual.Income..k..,
+  col="#660033",
+  main="Histogram for Annual Income",
+  xlab="Annual Income Class",
+  ylab="Frequency",
+  labels=TRUE)
+```
+
+```{r, echo=FALSE}
+#Density plot of the annual income.
+plot(density(customer_data$Annual.Income..k..),
+    col="yellow",
+    main="Density Plot for Annual Income",
+    xlab="Annual Income Class",
+    ylab="Density")
+polygon(density(customer_data$Annual.Income..k..),
+        col="#ccff66")
+```
+
+From the two visualizations we can conclude that, people earning an average income of 70,have the highest frequency count in the histogram distribution and from the density plot, we observe that annual income has a normal distribution.
+
+
+K- Means Algorithm
+
+While using the k-means clustering algorithm, the first step is to indicate the number of clusters (k) that we wish to produce in the final output. The algorithm starts by selecting k objects from dataset randomly that will serve as the initial centers for our clusters. These selected objects are the cluster means. Then, the remaining objects have an assignment of the closest centroid.
+
+
+```{r , include=TRUE}
+#computes gap statistic
+k6<-kmeans(customer_data[,3:5],6,iter.max=100,nstart=50,algorithm="Lloyd")
+k6
+```
+
+
+```{r , include=TRUE}
+pcclust=prcomp(customer_data[,3:5],scale=FALSE) #principal component analysis
+summary(pcclust)
+
+pcclust$rotation[,1:2]
+
+```
+
+
+```{r ,echo=TRUE}
+#Visualizes the clusters.
+set.seed(1)
+ggplot(customer_data, aes(x =Annual.Income..k.., y = Spending.Score..1.100.)) + 
+  geom_point(stat = "identity", aes(color = as.factor(k6$cluster))) +
+  scale_color_discrete(name=" ",
+              breaks=c("1", "2", "3", "4", "5","6"),
+              labels=c("Cluster 1", "Cluster 2", "Cluster 3", "Cluster 4", "Cluster 5","Cluster 6")) +
+  ggtitle("Segments of Mall Customers", subtitle = "Using K-means Clustering")
+
+```
+
+From the above visualization, we observe that there is a distribution of 6 clusters as follows –
+
+Cluster 1 – This cluster represents the customer_data having a high annual income as well as a high annual spend.
+
+Cluster 2 – This cluster denotes a high annual income and low yearly spend.
+
+Cluster 3 – This cluster denotes the customer_data with low annual income as well as low yearly spend of income.
+
+Cluster 5 – This cluster represents a low annual income but its high yearly expenditure.
+
+Cluster 4 and 6 – These clusters represent the customer_data with the medium income salary as well as the medium annual spend of salary.
+
